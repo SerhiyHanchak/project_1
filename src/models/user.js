@@ -15,14 +15,7 @@ var User = new Schema ({
     password: {
         type: String,
         required: true
-    },
-    role: {
-        type: String,
-        admin: [
-            true,
-            false
-        ],
-        default: false}
+    }
 });
 
 module.exports = User;

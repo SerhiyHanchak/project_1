@@ -8,8 +8,11 @@ var loger = require('morgan');
 var path = require('path');
 var helmet = require('helmet');
 var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
 var session = require('express-session');
 
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
 
 require('../config').development;
 
@@ -21,7 +24,7 @@ app.use(bodyParser.json());
 app.use(helmet());
 app.disable('x-powered-by');
 app.use(session({
-    name: 'Internet Store',
+    name: 'db',
     secret: 'my secret',
     resave: true,
     saveUninitialized: true,
@@ -31,8 +34,11 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+var user = require('./models/user');
+passport.use(new LocalStrategy(user.authenticate()));
+passport.serializeUser(user.serializeUser());
+passport.deserializeUser(user.deserializeUser());
 
-
-require('./routes')(app);
+app.use('/', require('./routes/index'));
 
 module.exports = app;

@@ -1,3 +1,4 @@
+/*
 'use strict';
 
 var Joi = require('joi');
@@ -9,8 +10,7 @@ var update;
 schemaCreate = Joi.object().keys({
     login: Joi.string().required(),
     password: Joi.string().required(),
-    name: Joi.string().required(),
-    age: Joi.number().required()
+    name: Joi.string().required()
 });
 
 schemaLogin = Joi.object().keys({
@@ -28,3 +28,4 @@ module.exports = {
     login: schemaLogin,
     update: update
 };
+*/

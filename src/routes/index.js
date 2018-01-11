@@ -1,45 +1,21 @@
 'use strict';
 
-var express = require('express');
-var passport = require('passport');
-var User = require('../models/user');
-var router = express.Router();
+module.exports = function(app) {
+    var logger = require('morgan');
 
-router.get('/', function (req, res) {
-    res.render('index', { user : req.user });
-});
-
-router.get('/register', function(req, res) {
-    res.render('register', { });
-});
-
-router.post('/register', function(req, res) {
-    User.register(new User({ username : req.body.username }), req.body.password, function(err, user) {
-        if (err) {
-            return res.render('register', { user : user });
-        }
-
-        passport.authenticate('local')(req, res, function () {
-            res.redirect('/');
-        });
+    app.get('/'/*,isAuth*/, function (req, res) {
+        res.sendfile('index.html');
     });
-});
+    app.use('/user',require('./user'));
 
-router.get('/login', function(req, res) {
-    res.render('login', { user : req.user });
-});
+    app.use(require('../utils/notFoundHandler'));
+    app.use(require('../utils/errorHandler'));
+/*
+    function isAuth(req, res, next){
+        if(req.isAuthenticated()){
+            return next;
+        }
+        res.redirect('user/login')
+    }*/
+};
 
-router.post('/login', passport.authenticate('local'), function(req, res) {
-    res.redirect('/');
-});
-
-router.get('/logout', function(req, res) {
-    req.logout();
-    res.redirect('/');
-});
-
-router.get('/ping', function(req, res){
-    res.status(200).send("pong!");
-});
-
-module.exports = router;

@@ -2,20 +2,24 @@
 
 var express = require('express');
 var app= express();
+var engines = require('consolidate');
+var compression = require('compression');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var loger = require('morgan');
-var path = require('path');
-var helmet = require('helmet');
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
 var session = require('express-session');
+var path = require('path');
+var passport = require('passport');
+var flash = require('connect-flash');
+var helmet = require('helmet');
 
+app.engine('html', engines.nunjucks);
+app.set('view engine', 'html');
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
 
 require('../config').development;
 
+app.use(compression());
 app.use(express.static(__dirname + '/public'));
 app.use(loger('dev'));
 app.use(cookieParser());
@@ -25,7 +29,7 @@ app.use(helmet());
 app.disable('x-powered-by');
 app.use(session({
     name: 'db',
-    secret: 'my secret',
+    secret: 'secretsecret',
     resave: true,
     saveUninitialized: true,
     cookie: {
@@ -34,11 +38,12 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-var user = require('./models/user');
-passport.use(new LocalStrategy(user.authenticate()));
-passport.serializeUser(user.serializeUser());
-passport.deserializeUser(user.deserializeUser());
+app.use(flash());
+app.use(function (req, res, next) {
+    res.locals.messages = require('express-messages')(req, res);
+    next();
+});
 
-app.use('/', require('./routes/index'));
+require('./routes/index')(app);
 
 module.exports = app;
